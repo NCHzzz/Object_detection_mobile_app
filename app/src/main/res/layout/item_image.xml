@@ -28,6 +28,6 @@
             android:textSize="12sp"
             android:background="#F8F8F8"
             android:visibility="visible" />
-        <!-- Increased maxLines from 3 to 4 to show more text and added background for better visibility -->
+        <!-- Increased maxLines to show more text -->
     </LinearLayout>
 </androidx.cardview.widget.CardView>

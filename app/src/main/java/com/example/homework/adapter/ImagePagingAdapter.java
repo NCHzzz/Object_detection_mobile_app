@@ -21,6 +21,10 @@ import com.example.homework.R;
 import com.example.homework.models.ImageItem;
 import com.example.homework.viewmodel.ImageViewModel;
 
+import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import java.util.List;
 
 public class ImagePagingAdapter extends PagingDataAdapter<ImageItem, ImagePagingAdapter.ImageViewHolder> {
@@ -62,20 +66,27 @@ public class ImagePagingAdapter extends PagingDataAdapter<ImageItem, ImagePaging
                 if (labels != null && !labels.isEmpty()) {
                     String originalTags = item.getTags();
                     String aiLabels = String.join(", ", labels);
-                    String combinedTags = originalTags + "\nAI detected: " + aiLabels;
 
-                    // Use Activity's runOnUiThread to ensure UI update on main thread
-                    if (holder.itemView.getContext() instanceof AppCompatActivity) {
-                        ((AppCompatActivity) holder.itemView.getContext()).runOnUiThread(() -> {
-                            // Check if view is still bound to the same item
-                            if (holder.getBindingAdapterPosition() != RecyclerView.NO_POSITION
-                                    && getItem(holder.getBindingAdapterPosition()) == item) {
-                                textView.setText(combinedTags);
-                                // Make sure the TextView is visible
-                                textView.setVisibility(View.VISIBLE);
-                            }
-                        });
-                    }
+                    // Use SpannableString to style the text
+                    SpannableString combinedText = new SpannableString(originalTags + "\nAI detected: " + aiLabels);
+
+                    // Make "AI detected:" part bold and colored
+                    int aiStart = originalTags.length() + 1; // +1 for the newline
+                    int aiEnd = aiStart + "AI detected:".length();
+                    combinedText.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), aiStart, aiEnd, 0);
+                    combinedText.setSpan(new ForegroundColorSpan(Color.parseColor("#1976D2")), aiStart, aiEnd, 0);
+
+                    // Make the actual labels slightly emphasized
+                    combinedText.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")),
+                            aiEnd, combinedText.length(), 0);
+
+                    ((AppCompatActivity) holder.itemView.getContext()).runOnUiThread(() -> {
+                        if (holder.getBindingAdapterPosition() != RecyclerView.NO_POSITION
+                                && getItem(holder.getBindingAdapterPosition()) == item) {
+                            textView.setText(combinedText);
+                            textView.setVisibility(View.VISIBLE);
+                        }
+                    });
                 }
             });
         }
